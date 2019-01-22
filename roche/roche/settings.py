@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['0.0.0.0','justroche.com']
 
 INSTALLED_APPS = [
     'polls.apps.PollsConfig',
+    'django-twilio',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
