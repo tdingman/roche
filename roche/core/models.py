@@ -39,14 +39,20 @@ class Roche(models.Model):
 
     performer = models.OneToOneField(
             User,
+            blank=True,
+            null = True,
             on_delete = models.CASCADE,
             related_name = 'performer',
             )
-    fulfilled_at = models.DateTimeField(
+    fulfilled_at = models.DateField(
             help_text = 'When was the roche fulfilled?',
+            blank = True,
+            null = True,
             )
     proof = models.TextField(
             help_text = 'Describe what happened',
+            blank = True,
+            null = True,
             )
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
@@ -75,13 +81,16 @@ class Round(models.Model):
             )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    completed_at = models.DateTimeField()
+    completed_at = models.DateTimeField(
+            blank=True,
+            null=True,
+            )
     #Meta
     class Meta:
         order_with_respect_to = 'roche'
     #Methods
     def __str__(self):
-        return self.id
+        return self.roche.title + ' - ' + str(self.number)
 
 class Participant(models.Model):
 
@@ -96,6 +105,8 @@ class Participant(models.Model):
             )
     round = models.ForeignKey(
             Round,
+            blank=True,
+            null=True,
             on_delete = models.CASCADE,
             )
     PARTICIPANT_STATUS = (
@@ -119,10 +130,11 @@ class Participant(models.Model):
             max_length = 8,
             choices = THROW_OPTION,
             blank = True,
+            null = True,
             )
     #Meta
     class Meta:
         order_with_respect_to = 'round'
     #Methods
     def __str__(self):
-        return self.user.username
+        return self.roche.title + ' - ' + self.user.username
