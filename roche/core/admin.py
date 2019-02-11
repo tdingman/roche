@@ -1,3 +1,6 @@
 from django.contrib import admin
+from core.models import Roche, Round, Participant
 
-# Register your models here.
+admin.site.register(Roche)
+admin.site.register(Round)
+admin.site.register(Participant)
