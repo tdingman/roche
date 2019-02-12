@@ -1,0 +1,14 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>Roches</h1>
+  {% if roche_list %}
+  <ul>
+    {% for roche in roche_list %}
+    <li>{{ roche.title }}</li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p>No roches!</p>
+  {% endif %}
+{% endblock %}
