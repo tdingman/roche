@@ -10,6 +10,11 @@
     {% block nav %}
     <nav clas="nav">
       <a class="nav-link" href="/">Home</a>
+      {% if user.is_authenticated %}
+      <a class="nav-link" href="{% url 'logout'%}?next={{request.path}}">Logout</a>   
+      {% else %}
+      <a class="nav-link" href="{% url 'login'%}?next={{request.path}}">Login</a>   
+      {% endif %}
     </nav>
     {% endblock %}
     <div class="container">
