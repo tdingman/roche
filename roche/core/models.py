@@ -52,7 +52,7 @@ class Roche(models.Model):
             choices = STATUS_OPTION,
             default ='open',
             )
-    performer = models.OneToOneField(
+    performer = models.ForeignKey(
             Profile,
             blank=True,
             null = True,
