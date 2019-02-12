@@ -1,0 +1,9 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <h1>{{ profile.user }}</h1>
+  <p>Phone number: {{ profile.phone }}</p>
+  {% for participant in profile.participant_set.all %}
+  <p>{{ participant.roche }}</p>
+  {% endfor %}
+{% endblock %}

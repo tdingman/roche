@@ -1,6 +1,22 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+class Profile(models.Model):
+    
+    #Fields
+    user = models.OneToOneField(
+            User,
+            on_delete=models.CASCADE,
+            )
+    phone = models.CharField(
+            max_length = 10,
+            help_text = 'US cell phones only',
+            )
+    #Meta
+    #Functions
+    def __str__(self):
+        return self.user.username
+
 class Roche(models.Model):
 
     #Fields
@@ -36,9 +52,8 @@ class Roche(models.Model):
             choices = STATUS_OPTION,
             default ='open',
             )
-
     performer = models.OneToOneField(
-            User,
+            Profile,
             blank=True,
             null = True,
             on_delete = models.CASCADE,
@@ -56,7 +71,7 @@ class Roche(models.Model):
             )
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
-            User,
+            Profile,
             on_delete = models.CASCADE,
             related_name = 'created_by',
             )
@@ -95,8 +110,8 @@ class Round(models.Model):
 class Participant(models.Model):
 
     #Fields
-    user = models.ForeignKey(
-            User,
+    profile = models.ForeignKey(
+            Profile,
             on_delete = models.CASCADE,
             )
     roche = models.ForeignKey(
@@ -137,4 +152,4 @@ class Participant(models.Model):
         order_with_respect_to = 'round'
     #Methods
     def __str__(self):
-        return self.roche.title + ' - ' + self.user.username
+        return self.roche.title + ' - ' + self.profile.user.username
