@@ -22,7 +22,7 @@ class RocheDetailView(generic.DetailView):
         context['declined'] = participants.filter(status='declined')
         return context
 
-class RocheCreate(CreateView):
+class RocheCreate(LoginRequiredMixin, CreateView):
     model = Roche
     fields = [
             'title',
@@ -30,9 +30,20 @@ class RocheCreate(CreateView):
             'condition',
             'condition_count',
             ]
-
+    
+    # This sets created_by as the logged-in user and adds them as a participant
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = Profile.objects.get(user_id=self.request.user.id)
+        user = self.request.user
+        profile = Profile.objects.get(user_id=user.id)
+        roche = self.object
+        self.object.created_by = profile
         self.object.save()
+        
+        Participant.objects.create(
+                profile=profile,
+                roche=roche,
+                status='joined',
+                )
+
         return super().form_valid(form)
