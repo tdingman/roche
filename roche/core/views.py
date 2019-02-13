@@ -21,3 +21,14 @@ class RocheDetailView(generic.DetailView):
         context['joined'] = participants.filter(status='joined')
         context['declined'] = participants.filter(status='declined')
         return context
+
+class RocheCreate(CreateView):
+    model = Roche
+    #exclude = ['created_by']
+    fields = '__all__'
+
+    def form_valid(self, form):
+        self.object = form.save(commit=False)
+        self.object.created_by = self.request.user
+        self.object.save()
+        return super().form_valid(form)
