@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views import generic
 from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -20,7 +20,15 @@ class RocheDetailView(generic.DetailView):
         context['invited'] = participants.filter(status='invited')
         context['joined'] = participants.filter(status='joined')
         context['declined'] = participants.filter(status='declined')
-        return context
+
+        profile = Profile.objects.get(user=self.request.user)
+        try:
+            participant = participants.get(profile=profile)
+            context['show_accept_link'] = True if participant.status == 'invited' else False
+        except Exception:
+            context['show_join_link'] = True
+        finally:
+            return context
 
 class RocheCreate(LoginRequiredMixin, CreateView):
     model = Roche
@@ -47,3 +55,15 @@ class RocheCreate(LoginRequiredMixin, CreateView):
                 )
 
         return super().form_valid(form)
+
+def join(request, pk):
+    roche = Roche.objects.get(pk=pk)
+    profile = Profile.objects.get(user_id=request.user.id)
+
+    Participant.objects.create(
+            profile=profile,
+            roche=roche,
+            status='joined',
+            )
+
+    return redirect('roche', pk=pk)

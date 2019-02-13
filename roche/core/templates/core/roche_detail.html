@@ -11,6 +11,13 @@
     {% endif %}
   </span>
   <p>{{ roche.description }}</p>
+  {% if request.user.is_authenticated %}
+    {% if show_join_link %}
+    <a href="{% url 'join' roche.id %}">Join</a>
+    {% elif show_accept_link %}
+    <a href="">Accept</a>
+    {% endif %}
+  {% endif %}
   <h2>In</h2>
   <hr/>
   <ul>
