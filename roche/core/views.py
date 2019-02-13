@@ -24,11 +24,15 @@ class RocheDetailView(generic.DetailView):
 
 class RocheCreate(CreateView):
     model = Roche
-    #exclude = ['created_by']
-    fields = '__all__'
+    fields = [
+            'title',
+            'description',
+            'condition',
+            'condition_count',
+            ]
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        self.object.created_by = self.request.user
+        self.object.created_by = Profile.objects.get(user_id=self.request.user.id)
         self.object.save()
         return super().form_valid(form)
