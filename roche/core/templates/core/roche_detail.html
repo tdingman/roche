@@ -2,22 +2,40 @@
 
 {% block content %}
   <h1>{{ roche.title }}</h1>
+  <span>
+    {{ roche.condition_count }} 
+    {% if roche.condition == "loss" %}
+    loss{{ roche.condition_count|pluralize:"es" }}
+    {% else %}
+    win{{ roche.condition_count|pluralize }}
+    {% endif %}
+  </span>
   <p>{{ roche.description }}</p>
   <h2>In</h2>
   <hr/>
   <ul>
-    {% for i in invited %}
-    <li class="font-weight-light">{{ i.profile.user.first_name }}</li>
-    {% endfor %}
+    
     {% for j in joined %}
-    <li>{{ j.profile.user.first_name }}</li>
+    <li><a href="{% url 'profile' j.profile.user.username %}">{{ j.profile.user.first_name }}</a></li>
     {% endfor %}
   </ul>
   <h2>Out</h2>
   <hr/>
   <ul>
     {% for d in declined %}
-    <li><s>{{ d.profile.user.first_name }}</s></li>
+    <li><a href="{% url 'profile' d.profile.user.username %}">{{ d.profile.user.first_name }}</a></li>
+    {% endfor %}
+  </ul>
+  <h2>Invited</h2>
+  <hr/>
+  <ul>
+    {% for i in invited %}
+    <li>
+      <a href="{% url 'profile' i.profile.user.username %}">{{ i.profile.user.first_name }}</a>
+      {% if i.profile.user.id == user.id %}
+      - that's you!
+      {% endif %}
+    </li>
     {% endfor %}
   </ul>
 {% endblock %}
