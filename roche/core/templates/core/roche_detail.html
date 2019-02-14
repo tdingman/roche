@@ -15,34 +15,54 @@
     {% if show_join_link %}
     <a href="{% url 'join' roche.id %}">Join</a>
     {% elif show_accept_link %}
-    <a href="">Accept</a>
+    <a href="{% url 'accept' roche.id %}">Accept</a>
+    {% elif show_finalize_link %}
+    <a href="{% url 'finalize' roche.id %}">Finalize</a>
     {% endif %}
   {% endif %}
   <h2>In</h2>
   <hr/>
   <ul>
-    
     {% for j in joined %}
-    <li><a href="{% url 'profile' j.profile.user.username %}">{{ j.profile.user.first_name }}</a></li>
+    <li>
+      <a href="{% url 'profile' j.profile.user.username %}">{{ j.profile.user.first_name }}</a>
+      {% if j.profile.user.id == user.id %}
+      - you're in!
+      {% endif %}
+    </li>
+    {% endfor %}
+    {% for r in remaining %}
+    <li>
+      <a href="{% url 'profile' r.profile.user.username %}">{{ r.profile.user.first_name }}</a>
+      {% if r.profile.user.id == user.id %}
+      - still in!
+      {% endif %}
+    </li>
     {% endfor %}
   </ul>
   <h2>Out</h2>
   <hr/>
   <ul>
     {% for d in declined %}
-    <li><a href="{% url 'profile' d.profile.user.username %}">{{ d.profile.user.first_name }}</a></li>
+    <li>
+      <a href="{% url 'profile' d.profile.user.username %}">{{ d.profile.user.first_name }}</a>
+    </li>
+    {% endfor %}
+    {% for e in eliminated %}
+    <li>
+      <a href="{% url 'profile' e.profile.user.username %}">{{ e.profile.user.first_name }}</a>
+    </li>
     {% endfor %}
   </ul>
+  {% if invited.count > 0 %}
   <h2>Invited</h2>
   <hr/>
   <ul>
     {% for i in invited %}
     <li>
       <a href="{% url 'profile' i.profile.user.username %}">{{ i.profile.user.first_name }}</a>
-      {% if i.profile.user.id == user.id %}
-      - that's you!
-      {% endif %}
     </li>
     {% endfor %}
   </ul>
+  {% endif %}
 {% endblock %}
