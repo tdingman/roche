@@ -118,3 +118,8 @@ def delete(request, pk):
     if roche.created_by == profile:
         roche.delete()
     return redirect('index')
+
+@login_required
+def throw(request, pk, slug):
+    print(slug)
+    return redirect('roche', pk=pk)

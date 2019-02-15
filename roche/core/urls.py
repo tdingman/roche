@@ -9,5 +9,6 @@ urlpatterns = [
         path('<int:pk>/accept', views.accept, name='accept'),
         path('<int:pk>/finalize', views.finalize, name='finalize'),
         path('<int:pk>/delete', views.delete, name='delete'),
+        path('<int:pk>/throw/<str:slug>', views.throw, name='throw'),
         path('<str:slug>/', views.ProfileDetailView.as_view(), name='profile'),
         ]

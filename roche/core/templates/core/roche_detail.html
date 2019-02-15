@@ -42,8 +42,13 @@
     <li>
       <a href="{% url 'profile' r.profile.user.username %}">{{ r.profile.user.first_name }}</a>
       {% if r.profile.user.id == user.id %}
-      - still in!
+      <ul>
+        <li><a href="{% url 'throw' roche.id 'rock' %}">Rock</a></li>
+        <li><a href="{% url 'throw' roche.id 'paper' %}">Paper</a></li>
+        <li><a href="{% url 'throw' roche.id 'scissors' %}">Scissors</a></li>
+      </ul>
       {% endif %}
+      {{ r.throw.get_fields }}
     </li>
     {% endfor %}
   </ul>
