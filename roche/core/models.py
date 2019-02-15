@@ -67,7 +67,6 @@ class Roche(models.Model):
     proof = models.TextField(
             help_text = 'Describe what happened',
             blank = True,
-            null = True,
             )
     created_at = models.DateTimeField(auto_now_add=True)
     created_by = models.ForeignKey(
@@ -145,7 +144,6 @@ class Participant(models.Model):
             max_length = 8,
             choices = THROW_OPTION,
             blank = True,
-            null = True,
             )
     #Meta
     class Meta:
