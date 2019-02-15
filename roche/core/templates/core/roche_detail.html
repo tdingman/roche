@@ -42,13 +42,16 @@
     <li>
       <a href="{% url 'profile' r.profile.user.username %}">{{ r.profile.user.first_name }}</a>
       {% if r.profile.user.id == user.id %}
-      <ul>
-        <li><a href="{% url 'throw' roche.id 'rock' %}">Rock</a></li>
-        <li><a href="{% url 'throw' roche.id 'paper' %}">Paper</a></li>
-        <li><a href="{% url 'throw' roche.id 'scissors' %}">Scissors</a></li>
-      </ul>
+        {% if r.throw != '' %}
+        - <strong>{{ r.get_throw_display }}</strong>
+        {% else %}
+        <ul>
+          <li><a href="{% url 'throw' roche.id 'rock' %}">Rock</a></li>
+          <li><a href="{% url 'throw' roche.id 'paper' %}">Paper</a></li>
+          <li><a href="{% url 'throw' roche.id 'scissors' %}">Scissors</a></li>
+        </ul>
+        {% endif %}
       {% endif %}
-      {{ r.throw.get_fields }}
     </li>
     {% endfor %}
   </ul>

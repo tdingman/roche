@@ -121,5 +121,11 @@ def delete(request, pk):
 
 @login_required
 def throw(request, pk, slug):
-    print(slug)
+    if slug in dict(Participant._meta.get_field('throw').choices):
+        roche = Roche.objects.get(pk=pk)
+        profile = Profile.objects.get(user_id=request.user.id)
+        participant = Participant.objects.filter(roche_id=pk).get(profile_id=profile.id)
+        if participant.throw == '' and participant.status == 'remaining':
+            participant.throw = slug
+            participant.save()
     return redirect('roche', pk=pk)
