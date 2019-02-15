@@ -46,7 +46,6 @@ class Roche(models.Model):
             ('in-progress', 'In Progress'),
             ('complete', 'Complete'),
             ('fulfilled', 'Fulfilled'),
-            ('expired', 'Expired'),
             )
     status = models.CharField(
             max_length = 11,

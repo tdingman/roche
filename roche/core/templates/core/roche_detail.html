@@ -2,22 +2,29 @@
 
 {% block content %}
   <h1>{{ roche.title }}</h1>
-  <span>
-    {{ roche.condition_count }} 
-    {% if roche.condition == "loss" %}
-    loss{{ roche.condition_count|pluralize:"es" }}
-    {% else %}
-    win{{ roche.condition_count|pluralize }}
-    {% endif %}
-  </span>
+  <div>
+    <span>Status: {{ roche.get_status_display }}</span>
+    |
+    <span>
+      {{ roche.condition_count }} 
+      {% if roche.condition == "loss" %}
+      loss{{ roche.condition_count|pluralize:"es" }}
+      {% else %}
+      win{{ roche.condition_count|pluralize }}
+      {% endif %}
+    </span>
+  </div>
   <p>{{ roche.description }}</p>
   {% if request.user.is_authenticated %}
-    {% if show_join_link %}
+    {% if show_join %}
     <a href="{% url 'join' roche.id %}">Join</a>
-    {% elif show_accept_link %}
+    {% elif show_accept %}
     <a href="{% url 'accept' roche.id %}">Accept</a>
-    {% elif show_finalize_link %}
+    {% elif show_finalize %}
     <a href="{% url 'finalize' roche.id %}">Finalize</a>
+    {% endif %}
+    {% if show_delete %}
+    <a href="{% url 'delete' roche.id %}">Delete</a>
     {% endif %}
   {% endif %}
   <h2>In</h2>

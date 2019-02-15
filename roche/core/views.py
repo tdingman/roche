@@ -25,17 +25,21 @@ class RocheDetailView(generic.DetailView):
         context['eliminated'] = participants.filter(status='eliminated')
 
         if self.request.user.is_authenticated:
-            creator = Roche.objects.get(pk=self.kwargs['pk']).created_by
+            roche = Roche.objects.get(pk=self.kwargs['pk'])
+            creator = roche.created_by
             profile = Profile.objects.get(user=self.request.user)
             joined = participants.filter(status='joined')
             try:
                 participant = participants.get(profile=profile)
                 if participant.status == 'invited':
-                    context['show_accept_link'] = True
-                elif profile == creator and joined.count() > 1:
-                    context['show_finalize_link'] = True
+                    context['show_accept'] = True
+                elif profile == creator:
+                    if joined.count() > 1:
+                        context['show_finalize'] = True
+                    elif roche.status == 'open':
+                        context['show_delete'] = True
             except Exception:
-                context['show_join_link'] = True
+                context['show_join'] = True
             finally:
                 return context
         else:
@@ -103,4 +107,14 @@ def finalize(request, pk):
         for j in joined:
             j.status = 'remaining'
             j.save()
+        roche.status = 'in-progress'
+        roche.save()
     return redirect('roche', pk=pk)
+
+@login_required
+def delete(request, pk):
+    roche = Roche.objects.get(pk=pk)
+    profile = Profile.objects.get(user_id=request.user.id)
+    if roche.created_by == profile:
+        roche.delete()
+    return redirect('index')
