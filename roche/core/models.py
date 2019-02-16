@@ -113,8 +113,8 @@ class Round(models.Model):
         participants.update(status='eliminated')
     def wash(self):
         participants = self.participant_set.filter(status='remaining')
-
-        newround = self.create(
+        
+        newround = Round.objects.create(
             roche=self.roche,
             number = self.number + 1,
             )
@@ -136,9 +136,9 @@ class Round(models.Model):
         scissors_count = scissors.count()
 
         if rock_count > 0 and paper_count > 0 and scissors_count > 0:
-            print('wash')
+            self.wash()
         elif rock_count == participant_count or paper_count == participant_count or scissors_count == participant_count:
-            print('wash')
+            self.wash()
         elif rock_count == 0:
             self.eliminate(scissors) if condition == 'loss' else self.eliminate(paper)
         elif paper_count == 0:
