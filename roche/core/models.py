@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
@@ -82,6 +83,9 @@ class Roche(models.Model):
         return reverse('roche', args=[str(self.id)])
     def __str__(self):
         return self.title
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # update_participants_on_finalize
 
 class Round(models.Model):
 
@@ -105,6 +109,47 @@ class Round(models.Model):
     #Methods
     def __str__(self):
         return self.roche.title + ' - ' + str(self.number)
+    def eliminate(self, participants):
+        participants.update(status='eliminated')
+    def wash(self):
+        participants = self.participant_set.filter(status='remaining')
+
+        newround = self.create(
+            roche=self.roche,
+            number = self.number + 1,
+            )
+        
+        participants.update(round_id=newround.id)
+
+    def evaluate(self):
+        participants = self.participant_set.filter(status='remaining')
+        participant_count = participants.count()
+
+        condition = self.roche.condition
+        
+        rock = participants.filter(throw='rock')
+        paper = participants.filter(throw='paper')
+        scissors = participants.filter(throw='scissors')
+
+        rock_count = rock.count()
+        paper_count= paper.count()
+        scissors_count = scissors.count()
+
+        if rock_count > 0 and paper_count > 0 and scissors_count > 0:
+            print('wash')
+        elif rock_count == participant_count or paper_count == participant_count or scissors_count == participant_count:
+            print('wash')
+        elif rock_count == 0:
+            self.eliminate(scissors) if condition == 'loss' else self.eliminate(paper)
+        elif paper_count == 0:
+            self.eliminate(rock) if condition == 'loss' else self.eliminate(scissors)
+        elif scissors_count == 0:
+            self.eliminate(paper) if condition == 'loss' else self.eliminate(rock)
+        else:
+            print('how did you get here?')
+
+        self.completed_at = timezone.now()
+        self.save()
 
 class Participant(models.Model):
 
@@ -151,3 +196,14 @@ class Participant(models.Model):
     #Methods
     def __str__(self):
         return self.roche.title + ' - ' + self.profile.user.username
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        roche = Roche.objects.get(pk=self.roche_id)
+        try:
+            round = Round.objects.get(pk=self.round_id)
+            participants = round.participant_set.all()
+            no_throw = participants.filter(throw='')
+            if no_throw.count() == 0:
+                round.evaluate()
+        except Exception as e:
+            print(e)

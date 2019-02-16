@@ -98,6 +98,7 @@ def finalize(request, pk):
     roche = Roche.objects.get(pk=pk)
     profile = Profile.objects.get(user_id=request.user.id)
     if roche.created_by == profile:
+        # move this logic to roche model
         participants = Participant.objects.filter(roche_id=pk)
         invited = participants.filter(status='invited')
         joined = participants.filter(status='joined')
