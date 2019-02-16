@@ -2,19 +2,17 @@
 
 {% block content %}
   <h1>{{ roche.title }}</h1>
+  <div>{{ roche.description }}</div>
   <div>
-    <span>Status: {{ roche.get_status_display }}</span>
-    |
-    <span>
-      {{ roche.condition_count }} 
-      {% if roche.condition == "loss" %}
-      loss{{ roche.condition_count|pluralize:"es" }}
-      {% else %}
-      win{{ roche.condition_count|pluralize }}
-      {% endif %}
-    </span>
+    {{ roche.condition_count }} 
+    {% if roche.condition == "loss" %}
+    loss{{ roche.condition_count|pluralize:"es" }}
+    {% else %}
+    win{{ roche.condition_count|pluralize }}
+    {% endif %}
   </div>
-  <p>{{ roche.description }}</p>
+  <div>Status: {{ roche.get_status_display }}</div>
+  <div>Round: {{ roche.get_latest_round.number }}</div>
   {% if request.user.is_authenticated %}
     {% if show_join %}
     <a href="{% url 'join' roche.id %}">Join</a>

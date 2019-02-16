@@ -86,6 +86,8 @@ class Roche(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # update_participants_on_finalize
+    def get_latest_round(self):
+        return self.round_set.latest('created_at')
 
 class Round(models.Model):
 
@@ -109,17 +111,9 @@ class Round(models.Model):
     #Methods
     def __str__(self):
         return self.roche.title + ' - ' + str(self.number)
+    
     def eliminate(self, participants):
         participants.update(status='eliminated')
-    def wash(self):
-        participants = self.participant_set.filter(status='remaining')
-        
-        newround = Round.objects.create(
-            roche=self.roche,
-            number = self.number + 1,
-            )
-        
-        participants.update(round_id=newround.id)
 
     def evaluate(self):
         participants = self.participant_set.filter(status='remaining')
@@ -136,9 +130,9 @@ class Round(models.Model):
         scissors_count = scissors.count()
 
         if rock_count > 0 and paper_count > 0 and scissors_count > 0:
-            self.wash()
+            pass
         elif rock_count == participant_count or paper_count == participant_count or scissors_count == participant_count:
-            self.wash()
+            pass
         elif rock_count == 0:
             self.eliminate(scissors) if condition == 'loss' else self.eliminate(paper)
         elif paper_count == 0:
@@ -147,7 +141,15 @@ class Round(models.Model):
             self.eliminate(paper) if condition == 'loss' else self.eliminate(rock)
         else:
             print('how did you get here?')
+        
+        newround = Round.objects.create(
+            roche=self.roche,
+            number = self.number + 1,
+            )
 
+        remaining = self.participant_set.filter(status='remaining')
+        remaining.update(round_id=newround.id)
+        remaining.update(throw='')
         self.completed_at = timezone.now()
         self.save()
 
