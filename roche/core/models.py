@@ -101,6 +101,10 @@ class Roche(models.Model):
 
         self.status ='in-progress'
         self.save()
+    def fulfill(self):
+        self.fulfilled_at = timezone.now()
+        self.proof = 'hi'
+        self.save()
     def get_latest_round(self):
         return self.round_set.latest('created_at')
 
@@ -169,7 +173,7 @@ class Round(models.Model):
                 remaining.update(round=newround)
             else:
                 roche = self.roche
-                roche.status = 'completed'
+                roche.status = 'complete'
                 roche.performer = remaining[0].profile
                 roche.save()
 

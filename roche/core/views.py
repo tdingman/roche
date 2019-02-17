@@ -28,11 +28,14 @@ class RocheDetailView(generic.DetailView):
             roche = Roche.objects.get(pk=self.kwargs['pk'])
             creator = roche.created_by
             profile = Profile.objects.get(user=self.request.user)
+            performer = roche.performer
             joined = participants.filter(status='joined')
             try:
                 participant = participants.get(profile=profile)
                 if participant.status == 'invited':
                     context['show_accept'] = True
+                elif roche.status == 'complete' and profile == performer:
+                    context['show_fulfill'] = True
                 elif profile == creator:
                     if joined.count() > 1:
                         context['show_finalize'] = True
@@ -108,6 +111,15 @@ def delete(request, pk):
     if roche.created_by == profile:
         roche.delete()
     return redirect('index')
+
+@login_required
+def fulfill(request, pk):
+    roche = Roche.objects.get(pk=pk)
+    profile = Profile.objects.get(user_id=request.user.id)
+    performer = roche.performer
+    if profile == performer:
+        roche.fulfill()
+    return redirect('roche', pk=pk)
 
 @login_required
 def throw(request, pk, slug):

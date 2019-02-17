@@ -12,6 +12,9 @@
     {% endif %}
   </div>
   <div>Status: {{ roche.get_status_display }}</div>
+  {% if roche.fulfilled_at %}
+  <div>Fulfilled on {{ roche.fulfilled_at }} by {{ roche.performer.user.first_name }}</div>
+  {% endif %}
   {% if roche.get_latest_round.number %}
   <div>Round: {{ roche.get_latest_round.number }}</div>
   {% endif %}
@@ -25,6 +28,9 @@
     {% endif %}
     {% if show_delete %}
     <a href="{% url 'delete' roche.id %}">Delete</a>
+    {% endif %}
+    {% if show_fulfill %}
+    <a href="{% url 'fulfill' roche.id %}">Fulfill</a>
     {% endif %}
   {% endif %}
   <h2>In</h2>
