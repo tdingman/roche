@@ -85,7 +85,20 @@ class Roche(models.Model):
         return self.title
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        # update_participants_on_finalize
+    def finalize(self):
+        round = Round.objects.create(
+                roche = self,
+                number = 1,
+                )
+        for i in self.participant_set.filter(status='invited'):
+            i.status = 'declined'
+            i.save()
+        for j in self.participant_set.filter(status='joined'):
+            j.status = 'remaining'
+            j.round=round
+            j.save()
+        self.status ='in-progress'
+        self.save()
     def get_latest_round(self):
         return self.round_set.latest('created_at')
 
@@ -142,16 +155,26 @@ class Round(models.Model):
         else:
             print('how did you get here?')
         
-        newround = Round.objects.create(
-            roche=self.roche,
-            number = self.number + 1,
-            )
-
         remaining = self.participant_set.filter(status='remaining')
-        remaining.update(throw=None)
-        remaining.update(round_id=newround.id)
+        if remaining.count() > 1:
+            newround = Round.objects.create(
+                roche=self.roche,
+                number = self.number + 1,
+                )
+
+            remaining.update(throw=None)
+            remaining.update(round_id=newround.id)
+        else:
+            roche = self.roche
+            roche.status = 'completed'
+            roche.performer = remaining[0].profile
+            roche.save()
+
         self.completed_at = timezone.now()
         self.save()
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
 
 class Participant(models.Model):
 
