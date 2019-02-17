@@ -148,8 +148,8 @@ class Round(models.Model):
             )
 
         remaining = self.participant_set.filter(status='remaining')
+        remaining.update(throw=None)
         remaining.update(round_id=newround.id)
-        remaining.update(throw='')
         self.completed_at = timezone.now()
         self.save()
 
@@ -191,6 +191,7 @@ class Participant(models.Model):
             max_length = 8,
             choices = THROW_OPTION,
             blank = True,
+            null = True,
             )
     #Meta
     class Meta:

@@ -40,7 +40,7 @@
     <li>
       <a href="{% url 'profile' r.profile.user.username %}">{{ r.profile.user.first_name }}</a>
       {% if r.profile.user.id == user.id %}
-        {% if r.throw != '' %}
+        {% if r.throw  %}
         - <strong>{{ r.get_throw_display }}</strong>
         {% else %}
         <ul>
