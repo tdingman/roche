@@ -12,7 +12,7 @@
     {% endif %}
   </div>
   <div>Status: {{ roche.get_status_display }}</div>
-  {% if roche.round %}
+  {% if roche.get_latest_round.number %}
   <div>Round: {{ roche.get_latest_round.number }}</div>
   {% endif %}
   {% if request.user.is_authenticated %}

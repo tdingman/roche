@@ -88,7 +88,7 @@ def join(request, pk):
 def accept(request, pk):
     roche = Roche.objects.get(pk=pk)
     profile = Profile.objects.get(user_id=request.user.id)
-    participant = Participant.objects.get(profile_id=profile.id)
+    participant = roche.participant_set.get(profile_id=profile.id)
     participant.status = 'joined'
     participant.save()
     return redirect('roche', pk=pk)
@@ -114,8 +114,8 @@ def throw(request, pk, slug):
     if slug in dict(Participant._meta.get_field('throw').choices):
         roche = Roche.objects.get(pk=pk)
         profile = Profile.objects.get(user_id=request.user.id)
-        participant = Participant.objects.filter(roche_id=pk).get(profile_id=profile.id)
-        if participant.throw == '' and participant.status == 'remaining':
+        participant = roche.participant_set.get(profile_id=profile.id)
+        if participant.throw == None and participant.status == 'remaining':
             participant.throw = slug
             participant.save()
     return redirect('roche', pk=pk)

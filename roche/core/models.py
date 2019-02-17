@@ -90,13 +90,15 @@ class Roche(models.Model):
                 roche = self,
                 number = 1,
                 )
-        for i in self.participant_set.filter(status='invited'):
-            i.status = 'declined'
-            i.save()
-        for j in self.participant_set.filter(status='joined'):
-            j.status = 'remaining'
-            j.round=round
-            j.save()
+
+        invited = self.participant_set.filter(status='invited')
+        invited.update(status = 'declined')
+        joined = self.participant_set.filter(status='joined')
+        joined.update(status = 'remaining')
+        
+        remaining = self.participant_set.filter(status='remaining')
+        remaining.update(round = round)
+
         self.status ='in-progress'
         self.save()
     def get_latest_round(self):
@@ -132,46 +134,47 @@ class Round(models.Model):
         participants = self.participant_set.filter(status='remaining')
         participant_count = participants.count()
 
-        condition = self.roche.condition
-        
-        rock = participants.filter(throw='rock')
-        paper = participants.filter(throw='paper')
-        scissors = participants.filter(throw='scissors')
+        if participants.filter(throw=None).count() == 0:
+            rock = participants.filter(throw='rock')
+            paper = participants.filter(throw='paper')
+            scissors = participants.filter(throw='scissors')
 
-        rock_count = rock.count()
-        paper_count= paper.count()
-        scissors_count = scissors.count()
+            rock_count = rock.count()
+            paper_count= paper.count()
+            scissors_count = scissors.count()
 
-        if rock_count > 0 and paper_count > 0 and scissors_count > 0:
-            pass
-        elif rock_count == participant_count or paper_count == participant_count or scissors_count == participant_count:
-            pass
-        elif rock_count == 0:
-            self.eliminate(scissors) if condition == 'loss' else self.eliminate(paper)
-        elif paper_count == 0:
-            self.eliminate(rock) if condition == 'loss' else self.eliminate(scissors)
-        elif scissors_count == 0:
-            self.eliminate(paper) if condition == 'loss' else self.eliminate(rock)
-        else:
-            print('how did you get here?')
-        
-        remaining = self.participant_set.filter(status='remaining')
-        if remaining.count() > 1:
-            newround = Round.objects.create(
-                roche=self.roche,
-                number = self.number + 1,
-                )
+            condition = self.roche.condition
 
-            remaining.update(throw=None)
-            remaining.update(round_id=newround.id)
-        else:
-            roche = self.roche
-            roche.status = 'completed'
-            roche.performer = remaining[0].profile
-            roche.save()
+            if rock_count > 0 and paper_count > 0 and scissors_count > 0:
+                pass
+            elif rock_count == participant_count or paper_count == participant_count or scissors_count == participant_count:
+                pass
+            elif rock_count == 0:
+                self.eliminate(scissors) if condition == 'loss' else self.eliminate(paper)
+            elif paper_count == 0:
+                self.eliminate(rock) if condition == 'loss' else self.eliminate(scissors)
+            elif scissors_count == 0:
+                self.eliminate(paper) if condition == 'loss' else self.eliminate(rock)
+            else:
+                print('how did you get here?')
+            
+            remaining = self.participant_set.filter(status='remaining')
+            if remaining.count() > 1:
+                newround = Round.objects.create(
+                    roche=self.roche,
+                    number = self.number + 1,
+                    )
 
-        self.completed_at = timezone.now()
-        self.save()
+                remaining.update(throw=None)
+                remaining.update(round=newround)
+            else:
+                roche = self.roche
+                roche.status = 'completed'
+                roche.performer = remaining[0].profile
+                roche.save()
+
+            self.completed_at = timezone.now()
+            self.save()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -224,12 +227,5 @@ class Participant(models.Model):
         return self.roche.title + ' - ' + self.profile.user.username
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        roche = Roche.objects.get(pk=self.roche_id)
-        try:
-            round = Round.objects.get(pk=self.round_id)
-            participants = round.participant_set.all()
-            no_throw = participants.filter(throw='')
-            if no_throw.count() == 0:
-                round.evaluate()
-        except Exception as e:
-            print(e)
+        if self.round:
+            self.round.evaluate()
