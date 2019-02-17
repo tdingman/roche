@@ -40,7 +40,7 @@
     <li>
       <a href="{% url 'profile' j.profile.user.username %}">{{ j.profile.user.first_name }}</a>
       {% if j.profile.user.id == user.id %}
-      - you're in!
+      *
       {% endif %}
     </li>
     {% endfor %}
