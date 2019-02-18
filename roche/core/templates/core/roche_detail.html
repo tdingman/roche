@@ -29,9 +29,6 @@
     {% if show_delete %}
     <a href="{% url 'delete' roche.id %}">Delete</a>
     {% endif %}
-    {% if show_fulfill %}
-    <a href="{% url 'fulfill' roche.id %}">Fulfill</a>
-    {% endif %}
   {% endif %}
   <h2>In</h2>
   <hr/>
@@ -48,8 +45,10 @@
     <li>
       <a href="{% url 'profile' r.profile.user.username %}">{{ r.profile.user.first_name }}</a>
       {% if r.profile.user.id == user.id %}
-        {% if r.throw  %}
+        {% if r.throw   %}
         - <strong>{{ r.get_throw_display }}</strong>
+        {% elif roche.status == 'complete' %}
+        - <a href="{% url 'fulfill' roche.id %}">Fulfill</a>
         {% else %}
         <ul>
           <li><a href="{% url 'throw' roche.id 'rock' %}">Rock</a></li>

@@ -34,13 +34,13 @@ class RocheDetailView(generic.DetailView):
                 participant = participants.get(profile=profile)
                 if participant.status == 'invited':
                     context['show_accept'] = True
-                elif roche.status == 'complete' and profile == performer:
-                    context['show_fulfill'] = True
                 elif profile == creator:
                     if joined.count() > 1:
                         context['show_finalize'] = True
                     elif roche.status == 'open':
                         context['show_delete'] = True
+                else:
+                    print('How did you get here?')
             except Exception:
                 context['show_join'] = True
             finally:

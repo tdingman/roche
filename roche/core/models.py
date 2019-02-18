@@ -101,6 +101,11 @@ class Roche(models.Model):
 
         self.status ='in-progress'
         self.save()
+    def complete(self):
+        self.status = 'complete'
+        remaining = self.participant_set.filter(status='remaining')[0]
+        self.performer = remaining.profile
+        self.save()
     def fulfill(self):
         self.fulfilled_at = timezone.now()
         self.proof = 'hi'
@@ -134,10 +139,36 @@ class Round(models.Model):
     def eliminate(self, participants):
         participants.update(status='eliminated')
 
+    def startnext(self):
+        next_participants = self.participant_set.filter(Q(status='remaining') | Q(status='eliminated'))
+        newround = Round.objects.create(
+                roche=self.roche,
+                number = self.number + 1,
+                )
+
+        next_participants.update(throw=None)
+        next_participants.update(round=newround)
+
+    def repeat(self):
+        remaining = self.participant_set.filter(status='remaining')
+        remaining.update(throw=None)
+    
+    def complete(self):
+        remaining = self.participant_set.filter(status='remaining')
+        remainer = remaining[0]
+        remainer.outcome_count += 1
+        remainer.save()
+        self.completed_at = timezone.now()
+        self.save()
+        # If someone hit the required number of wins/losses, complete the roche
+        if remainer.outcome_count == self.roche.condition_count:
+            self.roche.complete()
+    
     def evaluate(self):
         participants = self.participant_set.filter(status='remaining')
         participant_count = participants.count()
 
+        # If not everyone has thrown, the round isn't over
         if participants.filter(throw=None).count() == 0:
             rock = participants.filter(throw='rock')
             paper = participants.filter(throw='paper')
@@ -149,36 +180,27 @@ class Round(models.Model):
 
             condition = self.roche.condition
 
+            # If tie, repeat round
             if rock_count > 0 and paper_count > 0 and scissors_count > 0:
-                pass
+                self.repat()
             elif rock_count == participant_count or paper_count == participant_count or scissors_count == participant_count:
-                pass
-            elif rock_count == 0:
-                self.eliminate(scissors) if condition == 'loss' else self.eliminate(paper)
-            elif paper_count == 0:
-                self.eliminate(rock) if condition == 'loss' else self.eliminate(scissors)
-            elif scissors_count == 0:
-                self.eliminate(paper) if condition == 'loss' else self.eliminate(rock)
+                self.repeat()
             else:
-                print('how did you get here?')
-            
-            remaining = self.participant_set.filter(status='remaining')
-            if remaining.count() > 1:
-                newround = Round.objects.create(
-                    roche=self.roche,
-                    number = self.number + 1,
-                    )
+                # Figure out who won
+                if rock_count == 0:
+                    self.eliminate(scissors) if condition == 'loss' else self.eliminate(paper)
+                elif paper_count == 0:
+                    self.eliminate(rock) if condition == 'loss' else self.eliminate(scissors)
+                elif scissors_count == 0:
+                    self.eliminate(paper) if condition == 'loss' else self.eliminate(rock)
+                else:
+                    print('how did you get here?')
 
-                remaining.update(throw=None)
-                remaining.update(round=newround)
-            else:
-                roche = self.roche
-                roche.status = 'complete'
-                roche.performer = remaining[0].profile
-                roche.save()
-
-            self.completed_at = timezone.now()
-            self.save()
+                # If there's only one participant remaining, they take the win/loss
+                remaining = self.participant_set.filter(status='remaining')
+                remaining_count = remaining.count()
+                if remaining_count  == 1:
+                    self.complete()
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -222,6 +244,10 @@ class Participant(models.Model):
             choices = THROW_OPTION,
             blank = True,
             null = True,
+            )
+    outcome_count = models.IntegerField(
+            help_text = 'How many times the participant has won or lost',
+            default = 0,
             )
     #Meta
     class Meta:
