@@ -12,6 +12,9 @@ Web app for asynchronous roching
 * `source roche_env/bin/active`
 * (`deactivate` to escape)
 
+# Adding packages
+* `pip install python-decouple`
+
 # Starting Django
 * Make sure to add `0.0.0.0` and your domain to `ALLOWED_HOSTS` in `settings.py`
 * `python manage.py runserver 0:8000
@@ -19,6 +22,8 @@ Web app for asynchronous roching
 # Editing Django settings
 * Set time zone in `roche/settings.py`
 * Create admin (`python manage.py createsuperuser`)
+* Add environment variables to .env in root directory
+* Edit settings.py to change or add environment variables: SECRET_KEY, DEBUG, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
 
 # Adding apps
 * Add to `INSTALLED_APPS` in the `settings.py` file for the project (not any one of the apps)
