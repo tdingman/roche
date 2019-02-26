@@ -16,6 +16,8 @@ Web app for asynchronous roching
 * Note: install these while in the venv!
 * python-decouple
 * django-sendgrid-v5
+* django-twilio
+* phonenumbers (dependency for django-twilio that doesn't automatically come with it)
 
 # Starting Django
 * Make sure to add `0.0.0.0` and your domain to `ALLOWED_HOSTS` in `settings.py`
@@ -29,6 +31,8 @@ Web app for asynchronous roching
 
 # Adding apps
 * Add to `INSTALLED_APPS` in the `settings.py` file for the project (not any one of the apps)
+* Add `appname.apps.AppnameConfig` (substitute in the real app's name for appname/Appname)
+* Add `django_twilio`
 
 # django-twilio
 * Need to `pip install` two other packages: `phonenumbers` and `wheel`

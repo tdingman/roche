@@ -4,6 +4,9 @@ from django.views.generic.edit import CreateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from core.models import Profile, Roche, Participant
+from twilio.twiml.messaging_response import MessagingResponse
+from django_twilio.decorators import twilio_view
+from django_twilio.request import decompose
 
 class ProfileDetailView(generic.DetailView):
     model = Profile
@@ -131,3 +134,16 @@ def throw(request, pk, slug):
             participant.throw = slug
             participant.save()
     return redirect('roche', pk=pk)
+
+@twilio_view
+def parse_sms(request):
+
+    response = MessagingResponse()
+    twilio_request = decompose(request)
+    print(twilio_request.body)
+    return MessagingResponse()
+
+@twilio_view
+def send_sms(request):
+
+    print(request)
